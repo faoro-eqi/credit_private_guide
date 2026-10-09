@@ -462,6 +462,20 @@ st.divider()
 st.subheader("📈 Histórico de Taxa — Ativo Individual")
 
 ticker_names = list_tickers_with_names()
+if not ticker_names and "ticker" in df_today.columns:
+    asset_columns = ["ticker"] + (["nome"] if "nome" in df_today.columns else [])
+    current_assets = (
+        df_today[asset_columns]
+        .dropna(subset=["ticker"])
+        .drop_duplicates("ticker")
+    )
+    ticker_names = {
+        str(row["ticker"]): str(row["nome"])
+        if "nome" in current_assets.columns and pd.notna(row["nome"])
+        else ""
+        for _, row in current_assets.iterrows()
+    }
+
 if not ticker_names:
     st.info(
         "Nenhum snapshot disponível ainda. "
