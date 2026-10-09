@@ -205,7 +205,7 @@ COLOR_UP   = "#e74c3c"   # taxa subiu = risco aumentou = vermelho
 COLOR_DOWN = "#2ecc71"   # taxa caiu  = risco diminuiu = verde
 
 
-def _render_window(delta_col: str, taxa_past_col: str, data_col: str | None, label: str, df: pd.DataFrame | None = None, taxa_hoje_col: str = "taxa_hoje") -> None:
+def _render_window(delta_col: str, taxa_past_col: str, data_col: str | None, label: str, df: pd.DataFrame | None = None, taxa_hoje_col: str = "taxa_hoje", chart_scope: str = "") -> None:
     _base = df if df is not None else df_osc
     df_w = _base[_base[delta_col].notna()].copy()
     if df_w.empty:
@@ -305,7 +305,12 @@ def _render_window(delta_col: str, taxa_past_col: str, data_col: str | None, lab
                 margin=dict(l=0, r=12, t=8, b=28),
                 hoverlabel=dict(bgcolor="white", font_size=12, bordercolor="#ddd"),
             )
-            st.plotly_chart(fig, use_container_width=True)
+            chart_direction = "down" if ascending else "up"
+            st.plotly_chart(
+                fig,
+                use_container_width=True,
+                key=f"osc_{chart_scope}_{delta_col}_{chart_direction}",
+            )
 
             # Tabela compacta
             show_cols = {
@@ -414,6 +419,7 @@ def _render_indexer_tab(tab, df_tab: pd.DataFrame, indexer_label: str = "") -> N
                     "data_D1" if "data_D1" in _df.columns else None,
                     "D-1", df=_df,
                     taxa_hoje_col=taxa_hoje_label,
+                    chart_scope=f"{indexer_label or 'todos'}_{'spread' if spread_mode else 'taxa'}",
                 )
             idx += 1
         if _has_d7_eff:
@@ -423,6 +429,7 @@ def _render_indexer_tab(tab, df_tab: pd.DataFrame, indexer_label: str = "") -> N
                     "data_D7" if "data_D7" in _df.columns else None,
                     "D-7", df=_df,
                     taxa_hoje_col=taxa_hoje_label,
+                    chart_scope=f"{indexer_label or 'todos'}_{'spread' if spread_mode else 'taxa'}",
                 )
             idx += 1
         if _has_d30_eff:
@@ -432,6 +439,7 @@ def _render_indexer_tab(tab, df_tab: pd.DataFrame, indexer_label: str = "") -> N
                     "data_D30" if "data_D30" in _df.columns else None,
                     "D-30", df=_df,
                     taxa_hoje_col=taxa_hoje_label,
+                    chart_scope=f"{indexer_label or 'todos'}_{'spread' if spread_mode else 'taxa'}",
                 )
 
 
